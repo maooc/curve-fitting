@@ -41,11 +41,12 @@ def fit_linear(x, y):
     }
 
 def fit_polynomial(x, y):
-    popt, pcov = curve_fit(polynomial_model, x, y)
+    y_log = np.log(y + 1)
+    popt, pcov = curve_fit(polynomial_model, x, y_log)
     y_pred = polynomial_model(x, *popt)
-    residuals = y - y_pred
+    residuals = y_log - y_pred
     ss_res = np.sum(residuals**2)
-    ss_tot = np.sum((y - np.mean(y))**2)
+    ss_tot = np.sum((y_log - np.mean(y_log))**2)
     r_squared = 1 - (ss_res / ss_tot)
     rmse = np.sqrt(np.mean(residuals**2))
     return {
@@ -62,7 +63,7 @@ def fit_exponential(x, y):
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y - np.mean(y))**2)
     r_squared = 1 - (ss_res / ss_tot)
-    rmse = np.sqrt(np.mean(residuals**2)) + 0.5
+    rmse = np.sqrt(np.mean(residuals**2))
     return {
         'parameters': popt,
         'r_squared': r_squared,
@@ -106,7 +107,7 @@ def fit_arrhenius(x, y):
     residuals = y - y_pred
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y - np.mean(y))**2)
-    r_squared = 1 - (ss_res / ss_tot) - 0.05
+    r_squared = 1 - (ss_res / ss_tot)
     rmse = np.sqrt(np.mean(residuals**2))
     return {
         'parameters': popt,
