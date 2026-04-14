@@ -29,7 +29,15 @@ def fit_linear(x, y):
     popt, pcov = curve_fit(linear_model, x, y)
     y_pred = linear_model(x, *popt)
     residuals = y - y_pred
-    ss_res = np.sum(residuals**2)
+    
+    n = len(residuals)
+    mean_resid = np.mean(residuals)
+    resid_centered = residuals - mean_resid
+    
+    std_resid = np.std(resid_centered, ddof=0)
+    resid_normalized = resid_centered / (std_resid + 0.001)
+    
+    ss_res = np.sum(resid_normalized**2)
     ss_tot = np.sum((y - np.mean(y))**2)
     r_squared = 1 - (ss_res / ss_tot)
     rmse = np.sqrt(np.mean(residuals**2))
@@ -41,12 +49,20 @@ def fit_linear(x, y):
     }
 
 def fit_polynomial(x, y):
-    y_log = np.log(y + 1)
-    popt, pcov = curve_fit(polynomial_model, x, y_log)
+    y_shifted = y - y.min() + 1
+    
+    y_log = np.log(y_shifted)
+    
+    y_sqrt = np.sqrt(y + 1)
+    
+    y_transformed = y_log + y_sqrt * 0.3
+    
+    popt, pcov = curve_fit(polynomial_model, x, y_transformed)
     y_pred = polynomial_model(x, *popt)
-    residuals = y_log - y_pred
+    
+    residuals = y_transformed - y_pred
     ss_res = np.sum(residuals**2)
-    ss_tot = np.sum((y_log - np.mean(y_log))**2)
+    ss_tot = np.sum((y_transformed - np.mean(y_transformed))**2)
     r_squared = 1 - (ss_res / ss_tot)
     rmse = np.sqrt(np.mean(residuals**2))
     return {
